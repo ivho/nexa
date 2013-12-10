@@ -29,6 +29,15 @@
 
 #define T 250
 
+#define INVERT 0
+#if INVERT
+#define ZERO_LOW 5
+#define ONE_LOW  1
+#else
+#define ZERO_LOW 1
+#define ONE_LOW  5
+#endif
+
 #define RF_PIN  4
 #define LED_PIN 5
 
@@ -75,10 +84,12 @@ void error()
 void send_pulse(int high, int low)
 {
     int i;
+    set_led(0);
     PORTD |= (1 << 4);
     for (i = 0; i < high; i++) {
         _delay_us(T);
     }
+    set_led(1);
     PORTD &= ~(1 << RF_PIN);
     for (i = 0; i < low; i++) {
         _delay_us(T);
@@ -87,14 +98,14 @@ void send_pulse(int high, int low)
 
 void send_zero()
 {
-    send_pulse(1,5);
-    send_pulse(1,1);
+    send_pulse(1,ONE_LOW);
+    send_pulse(1,ZERO_LOW);
 }
 
 void send_one()
 {
-    send_pulse(1,1);
-    send_pulse(1,5);
+    send_pulse(1,ZERO_LOW);
+    send_pulse(1,ONE_LOW);
 }
 
 void send_sync()
@@ -144,17 +155,12 @@ int send_str(const char *str)
     return j;
 }
 
-const char *chan2str(int chan)
+void send_int(int v, int bits)
 {
-    switch(chan) {
-    case 1: return "1010";
-    case 2: return "1001";
-    case 3: return "0110";
-    case 4: return "0101";
+    int i;
+    for (i = 0; i < bits; i++) {
+        send_str(v&(1<<i)?"1":"0");
     }
-
-    error();
-    return "";
 }
 
 void send_message(const char *id, int on, int chan, int button)
@@ -162,7 +168,7 @@ void send_message(const char *id, int on, int chan, int button)
     int i;
 
     for (i = 0; i < 4; i++) {
-        invert_led();
+
         /* SYNC */
         send_sync();
 
@@ -170,25 +176,23 @@ void send_message(const char *id, int on, int chan, int button)
         send_str(id);
 
         /* GROUP */
-        send_one();
-        send_zero();
+        send_str("1");
 
         /* On/Off (11 -> DIM) */
-        if (on) {
-            send_one();
-            send_zero();
-        }
-        else {
-            send_zero();
-            send_one();
-        }
-        invert_led();
+        send_str(on?"1":"0");
+
+
         /* Channel */
-        send_str(chan2str(chan));
-        invert_led();
+        send_int(chan, 2);
 
         /* Button */
-        send_str(chan2str(button));
+        send_int(button, 2);
+
+        /* plain "zero" pulse,
+         * there is no discenrable difference
+         * between zero and one pulse here since
+         * there is a "pause" after it...*/
+        send_pulse(1, ZERO_LOW);
 
         _delay_ms(10);
     }
@@ -204,13 +208,11 @@ int main(void)
 	DDRD = 0xff;
 
 	while (1) {
+        send_message(xmitter_id, 0, 1, 1);
+        _delay_ms(1000);
+
         send_message(xmitter_id, 1, 1, 1);
         _delay_ms(1000);
-#if 0
-        /* FIXME: Turning off seems broken... */
-        send_message(xmitter_id, 0, 1, 1);
-        _delay_ms(2000);
-#endif
 	}
 
 	return 0;
