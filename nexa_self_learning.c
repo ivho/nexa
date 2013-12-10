@@ -29,7 +29,7 @@
 
 #define T 250
 
-#define INVERT 0
+#define INVERT 1
 #if INVERT
 #define ZERO_LOW 5
 #define ONE_LOW  1
@@ -163,7 +163,7 @@ void send_int(int v, int bits)
     }
 }
 
-void send_message(const char *id, int on, int chan, int button)
+void send_message(const char *id, int group, int on, int chan, int button)
 {
     int i;
 
@@ -176,7 +176,7 @@ void send_message(const char *id, int on, int chan, int button)
         send_str(id);
 
         /* GROUP */
-        send_str("1");
+        send_str(group?"1":"0");
 
         /* On/Off (11 -> DIM) */
         send_str(on?"1":"0");
@@ -189,7 +189,7 @@ void send_message(const char *id, int on, int chan, int button)
         send_int(button, 2);
 
         /* plain "zero" pulse,
-         * there is no discenrable difference
+         * there is no discernable difference
          * between zero and one pulse here since
          * there is a "pause" after it...*/
         send_pulse(1, ZERO_LOW);
@@ -203,16 +203,23 @@ void send_message(const char *id, int on, int chan, int button)
 
 int main(void)
 {
-
+    int i;
     /* All output */
 	DDRD = 0xff;
 
 	while (1) {
-        send_message(xmitter_id, 0, 1, 1);
+#if 1
+        for (i = 0; i < 5; i++) {
+            send_message(xmitter_id, 0, 1, 2, 2);
+            _delay_ms(600);
+        }
+#endif
+        for (;;) {
+        }
+#if 1
+        send_message(xmitter_id, 0, 1, 1, 1);
         _delay_ms(1000);
-
-        send_message(xmitter_id, 1, 1, 1);
-        _delay_ms(1000);
+#endif
 	}
 
 	return 0;
