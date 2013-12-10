@@ -29,7 +29,7 @@
 
 #define T 250
 
-#define INVERT 0
+#define INVERT 1
 #if INVERT
 #define ZERO_LOW 5
 #define ONE_LOW  1
