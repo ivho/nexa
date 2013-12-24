@@ -2,6 +2,7 @@
 ## This file is part of the avr-gcc-examples project.
 ##
 ## Copyright (C) 2008 Uwe Hermann <uwe@hermann-uwe.de>
+## Copyright (C) 2013 Ivar Holmqvist <ivarholmqvist@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -19,10 +20,11 @@
 ##
 
 PROGRAM = nexa
-MCU = atmega328p
+MCU   ?= atmega328p
+F_CPU ?= 16000000L
 CC = avr-gcc
 OBJCOPY = avr-objcopy
-CFLAGS += -Wall -g -Os  -mmcu=$(MCU) -DF_CPU=16000000L
+CFLAGS += -Wall -g -Os  -mmcu=$(MCU) -DF_CPU=$(F_CPU)
 LDFLAGS +=
 
 OBJS += nexa_self_learning.o
@@ -31,6 +33,20 @@ OBJS += nexa_self_learning.o
 ifneq ($(V),1)
 Q := @
 endif
+
+help:
+	@echo "Available targets:"
+	@echo
+	@echo " make all"
+	@echo " make $(PROGRAM).hex"
+	@echo " make $(PROGRAM).elf"
+	@echo " make flash"
+	@echo " make clean"
+	@echo
+	@echo "Default options:"
+	@echo
+	@echo " MCU=$(MCU)"
+	@echo " F_CPU=$(F_CPU)"
 
 all: $(PROGRAM).hex
 
