@@ -17,6 +17,10 @@
 *.out
 *.app
 
+# Arduino executables
+*.hex
+*.elf
+
 # Emacs
 .\#*
 \#*\#
