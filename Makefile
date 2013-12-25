@@ -20,8 +20,16 @@
 ##
 
 PROGRAM = nexa
-MCU   ?= atmega328p
-F_CPU ?= 16000000L
+
+# User overrideables
+MCU           ?= atmega328p
+F_CPU         ?= 16000000L
+# Default config from arduino-core package
+AVRDUDE_CONF  ?= /usr/share/arduino/hardware/tools/avrdude.conf
+PROGRAMMER_ID ?= arduino
+SERIAL_DEVICE ?= /dev/ttyUSB0
+BAUDE_RATE    ?= 57600
+
 CC = avr-gcc
 OBJCOPY = avr-objcopy
 CFLAGS += -Wall -g -Os  -mmcu=$(MCU) -DF_CPU=$(F_CPU)
@@ -37,7 +45,7 @@ endif
 help:
 	@echo "Available targets:"
 	@echo
-	@echo " make all"
+	@echo " make all ($(PROGRAM).hex)"
 	@echo " make $(PROGRAM).hex"
 	@echo " make $(PROGRAM).elf"
 	@echo " make flash"
@@ -47,6 +55,11 @@ help:
 	@echo
 	@echo " MCU=$(MCU)"
 	@echo " F_CPU=$(F_CPU)"
+	@echo " AVRDUDE_CONF=$(AVRDUDE_CONF)"
+	@echo " PROGRAMMER_ID=$(PROGRAMMER_ID)"
+	@echo " SERIAL_DEVICE=$(SERIAL_DEVICE)"
+	@echo " BAUDE_RATE=$(BAUDE_RATE)"
+	@echo
 
 all: $(PROGRAM).hex
 
@@ -64,7 +77,7 @@ $(PROGRAM).hex: $(PROGRAM).elf
 
 flash: $(PROGRAM).hex
 	@printf "  FLASH   $(PROGRAM).hex\n"
-	$(Q)avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -patmega328p -carduino -P/dev/ttyUSB0 -b57600 -D -Uflash:w:$(PROGRAM).hex
+	$(Q)avrdude -C$(AVRDUDE_CONF) -v -v -p$(MCU) -c$(PROGRAMMER_ID) -P$(SERIAL_DEVICE) -b$(BAUDE_RATE) -D -Uflash:w:$(PROGRAM).hex
 
 clean:
 	@printf "  CLEAN   $(subst $(shell pwd)/,,$(OBJS))\n"
