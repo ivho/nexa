@@ -29,17 +29,32 @@
 
 #define T 250
 
+#define SIGNAL_INVERT 0
 #define INVERT 1
+
 #if INVERT
 #define ZERO_LOW 5
 #define ONE_LOW  1
 #else
 #define ZERO_LOW 1
-#define ONE_LOW  5
+#define ONE_LOW  4
 #endif
 
-#define RF_PIN  4
-#define LED_PIN 5
+#define RF_PIN  7
+#define LED_PIN 4
+#define RF_RX_PIN 8
+
+
+static int num_pulses = 0;
+
+static void my_delay_ms(int ms)
+{
+    int i;
+    for (i = 0; i < ms; i++) {
+        _delay_us(1000);
+    }
+}
+
 
 /* Some LED stuff for debug. */
 static int led = 0;
@@ -67,30 +82,47 @@ void invert_led()
 void blink_led()
 {
     set_led(1);
-    _delay_ms(10);
+    my_delay_ms(10);
     set_led(0);
 }
 
 void error()
 {
     for (;;) {
+        set_led(1);
+        set_led(1);
         invert_led();
-        _delay_ms(100);
+        my_delay_ms(100);
         invert_led();
-        _delay_ms(100);
+        my_delay_ms(100);
     }
 
 }
+
+void set_rf(int on)
+{
+    if (SIGNAL_INVERT)
+        on = !on;
+
+    if (on) {
+        PORTD |= (1 << RF_PIN);
+    }
+    else {
+        PORTD &= ~(1 << RF_PIN);
+    }
+}
+
 void send_pulse(int high, int low)
 {
     int i;
-    set_led(0);
-    PORTD |= (1 << 4);
+    num_pulses += 1;
+    set_led(1);
+    set_rf(1);
     for (i = 0; i < high; i++) {
         _delay_us(T);
     }
-    set_led(1);
-    PORTD &= ~(1 << RF_PIN);
+    set_led(0);
+    set_rf(0);
     for (i = 0; i < low; i++) {
         _delay_us(T);
     }
@@ -113,12 +145,6 @@ void send_sync()
     send_pulse(1,10);
 }
 
-void send_pause()
-{
-    PORTD &= ~(1 << RF_PIN);
-    _delay_us(T*40);
-}
-
 
 void send_bit(int bit)
 {
@@ -129,7 +155,9 @@ void send_bit(int bit)
         send_zero();
     }
 }
-const char *xmitter_id = "1010 0100 1000 1001 0111 1100 01"; /* 26bit */
+//const char *xmitter_id = "1010 0100 1000 1001 0111 1100 01"; /* 26bit */
+const char *xmitter_id = "1010 0111 1111 1101 0000 1100 01"; /* 26bit */
+//const char *xmitter_id = "1111 1111 1111 1111 1111 1111 11"; /* 26bit */
 
 int send_str(const char *str)
 {
@@ -169,6 +197,7 @@ void send_message(const char *id, int on, int chan, int button)
 
     for (i = 0; i < 4; i++) {
 
+        num_pulses = 0;
         /* SYNC */
         send_sync();
 
@@ -194,7 +223,7 @@ void send_message(const char *id, int on, int chan, int button)
          * there is a "pause" after it...*/
         send_pulse(1, ZERO_LOW);
 
-        _delay_ms(10);
+        my_delay_ms(10);
     }
 }
 
@@ -204,15 +233,34 @@ void send_message(const char *id, int on, int chan, int button)
 int nexa(void)
 {
 
-    /* All output */
-	DDRD = 0xff;
+    /* All output except RF_RX_PIN */
+//    DDRD = 0xff ^ (1 << RF_RX_PIN);
+    DDRD = 0xff;
+//    error();
+#if 0
+    while (1) {
+        set_led(PORTD & (1 << RF_RX_PIN));
+    }
+#endif
 
 	while (1) {
-        send_message(xmitter_id, 0, 1, 1);
-        _delay_ms(1000);
-
         send_message(xmitter_id, 1, 1, 1);
-        _delay_ms(1000);
+
+#if 0
+        my_delay_ms(1000);
+        send_message(xmitter_id, 0, 1, 1);
+        my_delay_ms(1000);
+#endif
+//        for(;;);
+//        send_str("10101001010");
+#if 0
+        send_pulse(1, 1);
+        send_pulse(1, 1);
+        send_pulse(1, 1);
+#endif
+//        my_delay_ms(10);
+//        send_message(xmitter_id, 1, 1, 1);
+//        my_delay_ms(20);
 	}
 
 	return 0;
