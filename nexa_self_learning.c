@@ -201,7 +201,7 @@ void send_message(const char *id, int on, int chan, int button)
 
 
 
-int main(void)
+int nexa(void)
 {
 
     /* All output */

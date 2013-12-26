@@ -31,11 +31,19 @@ SERIAL_DEVICE ?= /dev/ttyUSB0
 BAUDE_RATE    ?= 57600
 
 CC = avr-gcc
+CPP = avr-g++
 OBJCOPY = avr-objcopy
 CFLAGS += -Wall -g -Os  -mmcu=$(MCU) -DF_CPU=$(F_CPU)
-LDFLAGS +=
+LDFLAGS +=  -Wl,--gc-sections
+CPPFLAGS = -I$(ARDUINO_SRC)
 
-OBJS += nexa_self_learning.o
+ARDUINO_HW      ?= /usr/share/arduino/hardware/
+ARDUINO_SRC     ?= $(ARDUINO_HW)/arduino/cores/arduino/
+ARDUINO_VARIANT ?= $(ARDUINO_HW)/arduino/variants/eightanaloginputs/
+CPPFLAGS += -I$(ARDUINO_VARIANT)
+CPPFLAGS += -Wall -fno-exceptions -ffunction-sections -fdata-sections -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=101
+
+OBJS += nexa_self_learning.o serial.o HardwareSerial.o Print.o WString.o main.o wiring.o
 
 # Be silent per default, but 'make V=1' will show all compiler calls.
 ifneq ($(V),1)
@@ -73,7 +81,19 @@ $(PROGRAM).hex: $(PROGRAM).elf
 
 %.o: %.c
 	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+	$(Q)$(CPP) $(CFLAGS) -o $@ -c $<
+
+%.o: $(ARDUINO_SRC)/%.c
+	@printf "  CC      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CPP) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+%.o: $(ARDUINO_SRC)/%.cpp
+	@printf "  C++      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+%.o:%.cpp
+	@printf "  C++      $(subst $(shell pwd)/,,$(@))\n"
+	$(Q)$(CPP) $(CFLAGS) $(CPPFLAGS) -o $@ -c $<
 
 flash: $(PROGRAM).hex
 	@printf "  FLASH   $(PROGRAM).hex\n"
