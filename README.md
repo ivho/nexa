@@ -11,12 +11,14 @@ Compile
 
 Install prequisits:
 ```bash
-sudo apt-get install gcc-avr avr-libc avrdude arduino
+sudo apt-get install gcc-avr avr-libc avrdude arduino arduino-mk
 ```
+*Note*, there seems to be an issue with arduino-mk on ubuntu 13.04, just harmless vid/pid warnings
+for the uno board when compiling, but upgrading to ubuntu 13.10 (arduino-mk version 0.12.0-1) solves the problem.
 
 ```bash
-make help
-make flash
+make
+make upload
 ```
 
 Install
