@@ -6,6 +6,10 @@ Arduino NEXA control.
 Simple control of a 433Mhz transmitter (TX433N) implementing the NEXA self learning protocol, currently just a playground for me but hopefully
 it will be something useful soon.
 
+http://tech.jolowe.se/home-automation-rf-protocols/
+http://elektronikforumet.syntaxis.se/wiki/index.php?title=RF_Protokoll_-_Nexa_sj%C3%A4lvl%C3%A4rande
+
+
 Compile
 =======
 
