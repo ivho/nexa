@@ -41,7 +41,11 @@ def parse_csv(fname):
         Tus = 262
         length_T = int(round(length_us / Tus))
         dev_us = (length_us - length_T*Tus)
-#        print "%dT % 4s (deviation % 3dus %3.2f%%)" % (length_T, "LOW" if sample.val else "HIGH", dev_us, 100.*dev_us/Tus)
+        # Switch the print here for diffable outputs,
+        # we can't really expect deviation to match exactly
+        print "%dT % 4s (deviation % 3dus %3.2f%%)" % (length_T, "LOW" if sample.val else "HIGH", dev_us, 100.*dev_us/Tus)
+#        print "%dT % 4s" % (length_T, "LOW" if sample.val else "HIGH")
+
         num_T += length_T
         prev = sample
         seq.append((length_T, LOW if sample.val else HIGH))
