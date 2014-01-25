@@ -44,7 +44,8 @@ void nexa(int group, int onoff, int unit, int button)
 	int i;
 	for (i = 0; i < 5; i++) {
 		Pulse(1,10); // SYNC
-		send_int(0x353870d, 26);
+		send_int(0x353, 10);
+		send_int(0x870d, 16);
 		send_int(group, 1);
 		send_int(onoff, 1);
 		send_int(unit, 2);
