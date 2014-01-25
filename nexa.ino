@@ -49,7 +49,7 @@ void nexa(int group, int onoff, int unit, int button)
                 send_int(onoff, 1);
                 send_int(unit, 2);
                 send_int(button, 2);
-                Pulse(1, 40);
+                Pulse(1, 40); // PAUSE
         }
 }
 
