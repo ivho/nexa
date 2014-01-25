@@ -54,23 +54,68 @@ void nexa(int group, int onoff, int unit, int button)
 	}
 }
 
+	int button = 3;
+	int unit = 3;
+
 void loop()
 {
 	unsigned char x;
-	Serial.print("enter:");
+
+	Serial.print("enter: [bu01g?]");
 	while (!Serial.available()) {
 	}
 	x = Serial.read();
-	if (x == '1') {
+	switch (x) {
+	case 'b':
+		Serial.print("\r\nbutton: ");
+		while (!Serial.available()) {}
+		button = Serial.read() - '0';
+		Serial.print(button);
+		Serial.print("\r\n");
+		break;
+
+	case 'u':
+		Serial.print("\r\nunit: ");
+		while (!Serial.available()) {}
+		unit = Serial.read() - '0';
+		Serial.print(unit);
+		Serial.print("\r\n");
+		break;
+
+	case '1':
+		Serial.print(button);
+		Serial.print("b:");
+		Serial.print(unit);
+		Serial.print("u:");
 		Serial.print("on\r\n");
-		nexa(1,0,3,3);
-	}else if (x == '0') {
+		nexa(1, 0, button, unit);
+		break;
+
+	case '0':
+		Serial.print(button);
+		Serial.print("b:");
+		Serial.print(unit);
+		Serial.print("u:");
 		Serial.print("off\r\n");
-		nexa(1,1,3,3);
-	} else if (x == 'g') {
-		Serial.print("group\r\n");
-		nexa(0,1,3,3);
-	} else {
-		Serial.print("unknown\r\n");
+		nexa(1, 1, button, unit);
+		break;
+
+	case 'g':
+		Serial.print("group off\r\n");
+		nexa(0, 1, button, unit); /* Button shouldn't matter for group... unit? */
+		break;
+
+	default:
+		Serial.print("\r\n");
+		Serial.print("b - set button (current ");
+		Serial.print(button);
+		Serial.print(")\r\n");
+		Serial.print("u - set unit (current ");
+		Serial.print(unit);
+		Serial.print(")\r\n");
+		Serial.print("1 - button/unit on\r\n");
+		Serial.print("0 - button/unit off\r\n");
+		Serial.print("g - group off\r\n");
+		break;
 	}
 }
