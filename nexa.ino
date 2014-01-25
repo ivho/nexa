@@ -2,10 +2,10 @@
 
 int rf_pin = 7;
 int led_pin = 13;
-void setup() 
+void setup()
 {
-  Serial.begin(9600); 
-  Serial.print("Starting");
+  Serial.begin(9600);
+  Serial.print("Starting\r\n");
   pinMode(rf_pin, OUTPUT);
   pinMode(led_pin, OUTPUT);
 }
@@ -68,9 +68,8 @@ void loop()
                 nexa(1,1,3,3);
         } else if (x == 'g') {
                 Serial.print("group\r\n");
-                nexa(0,1,3,3);	
+                nexa(0,1,3,3);
 	} else {
                 Serial.print("unknown\r\n");
-	}	
-	
+	}
 }
