@@ -29,6 +29,7 @@ def parse_csv(fname):
     prev = None
     num_T = 0
     seq = []
+    pause = 0
     for a in reader:
         sample = Sample(a[0], a[1])
 
@@ -43,12 +44,18 @@ def parse_csv(fname):
         dev_us = (length_us - length_T*Tus)
         # Switch the print here for diffable outputs,
         # we can't really expect deviation to match exactly
-        print "%dT % 4s (deviation % 3dus %3.2f%%)" % (length_T, "LOW" if sample.val else "HIGH", dev_us, 100.*dev_us/Tus)
-#        print "%dT % 4s" % (length_T, "LOW" if sample.val else "HIGH")
+#        print "%dT % 4s (deviation % 3dus %3.2f%%)" % (length_T, "LOW" if sample.val else "HIGH", dev_us, 100.*dev_us/Tus)
+        print "%dT % 4s" % (length_T, "LOW" if sample.val else "HIGH")
 
         num_T += length_T
         prev = sample
         seq.append((length_T, LOW if sample.val else HIGH))
+        print "sample time %d" % length_T
+        if length_T > 35:
+            pause += 1
+            if pause > 1:
+                print "Found %d PAUS bits, stop parsing." % pause
+                break
 
     seq.append((40, LOW)) # Fake pause @ end since there is not transition back to HIGH for the
                           # last LOW
