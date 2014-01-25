@@ -34,3 +34,7 @@ There a number of ways to get access to /dev/ttyUSBx here's a simple one:
 sudo adduser your_user_name dialout
 newgrp dialout
 ```
+
+Schematics
+==========
+Tested on an Arduino UNO board. Just connect a TX433N to vcc, gnd and the data pin to D7 and your set to go.
